@@ -25,7 +25,9 @@ def discount_with_dones(rewards, dones, gamma):
     discounted = []
     ret = 0  # Return: discounted reward
     for reward, done in zip(rewards[::-1], dones[::-1]):
-        ret = reward + gamma * ret * (1. - done)  # fixed off by one bug
+        # my-stable-baselines modified: { ret = reward + gamma * ret   # fixed off by one bug
+        ret = reward + gamma * ret
+        # }
         discounted.append(ret)
     return discounted[::-1]
 
@@ -394,10 +396,13 @@ class A2CRunner(AbstractEnvRunner):
         for n, (rewards, dones, value) in enumerate(zip(mb_rewards, mb_dones, last_values)):
             rewards = rewards.tolist()
             dones = dones.tolist()
-            if dones[-1] == 0:
-                rewards = discount_with_dones(rewards + [value], dones + [0], self.gamma)[:-1]
-            else:
-                rewards = discount_with_dones(rewards, dones, self.gamma)
+            # my-stable-baselines modified: {
+            # if dones[-1] == 0:
+            #     rewards = discount_with_dones(rewards + [value], dones + [0], self.gamma)[:-1]
+            # else:
+            #     rewards = discount_with_dones(rewards, dones, self.gamma)
+            rewards = discount_with_dones(rewards + [value], dones + [0], self.gamma)[:-1]
+            # }
             mb_rewards[n] = rewards
 
         # convert from [n_env, n_steps, ...] to [n_steps * n_env, ...]
