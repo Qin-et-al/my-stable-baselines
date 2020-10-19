@@ -71,7 +71,8 @@ def q_retrace(rewards, dones, q_i, values, rho_i, n_envs, n_steps, gamma):
     qrets = []
     for i in range(n_steps - 1, -1, -1):
         check_shape([qret, done_seq[i], reward_seq[i], rho_bar[i], q_is[i], value_sequence[i]], [[n_envs]] * 6)
-        qret = reward_seq[i] + gamma * qret * (1.0 - done_seq[i])
+        # my-stable-baselines modified: qret = reward_seq[i] + gamma * qret * (1.0 - done_seq[i])
+        qret = reward_seq[i] + gamma * qret
         qrets.append(qret)
         qret = (rho_bar[i] * (qret - q_is[i])) + value_sequence[i]
     qrets = qrets[::-1]
